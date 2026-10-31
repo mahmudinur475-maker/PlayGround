@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>Lomba Lari — Sprint 320 Meter</title>
+  <meta name="description" content="Lomba Lari: balapan sprint 320 meter di stadion senja. Geser untuk pindah lajur, lompat gawang, luncur palang, dan lepas turbo. Mendukung kontrol sentuh dan kemudi miring." />
+  <meta name="theme-color" content="#071226" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <div id="ui">
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="speedFx" class="speed-fx" aria-hidden="true"></div>
+    <div id="hitFlash" class="hit-flash" aria-hidden="true"></div>
+
+    <section id="menu" class="screen menu" aria-label="Menu utama">
+      <header class="menu-top">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 17.5 12 4l3.2 5.1L21 3l-1.3 10.4-4.4 1.7L12 21l-2-5.2Z"/></svg>
+          </span>
+          <span>PESTA OLAHRAGA</span>
+          <i aria-hidden="true"></i>
+          <span>STADION SENJA</span>
+        </div>
+        <button id="muteMenuBtn" class="icon-btn glass" type="button" aria-label="Nyalakan atau matikan suara">
+          <svg class="icon-sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16 8.5a5 5 0 0 1 0 7"/><path d="M18.7 5.8a9 9 0 0 1 0 12.4"/></svg>
+          <svg class="icon-sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+        </button>
+      </header>
+
+      <div class="menu-content">
+        <div class="hero">
+          <p class="eyebrow"><span class="pulse-dot"></span> FINAL 320 METER <span class="eyebrow-line"></span></p>
+          <h1 class="title">
+            <span class="title-top">Lomba</span>
+            <span class="title-bottom">Lari<span class="title-dot">.</span></span>
+          </h1>
+          <p class="tagline">Empat pelari. Satu garis finish.<br />Kunci lajur, lompati gawang, dan lepas turbo.</p>
+          <div class="record-chip" id="recordChip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v3a5 5 0 0 1-10 0V4Z"/><path d="M8 5H4v2a4 4 0 0 0 4 4M16 5h4v2a4 4 0 0 1-4 4M12 12v5M8 21h8M9 17h6"/></svg>
+            <span id="recordText">Belum ada rekor</span>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="card-head">
+            <span class="card-kicker">SIAP DI GARIS START?</span>
+            <span class="card-record" id="cardRecordText">Belum ada rekor</span>
+            <span class="live-chip"><i></i> LIVE</span>
+          </div>
+          <button id="startBtn" class="btn-start" type="button" aria-label="Start">
+            <span class="btn-start-label">Mulai lari</span>
+            <span class="btn-start-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+          <button id="tiltToggle" class="tilt-row" type="button" role="switch" aria-checked="false">
+            <span class="tilt-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10 18.5h4"/><path d="M3 10c1.5-2 3.5-2 5 0M21 10c-1.5-2-3.5-2-5 0"/></svg>
+            </span>
+            <span class="tilt-copy">
+              <b>Kemudi miring</b>
+              <small>Miringkan HP untuk pindah lajur</small>
+            </span>
+            <span class="switch" aria-hidden="true"><span class="switch-knob"></span></span>
+          </button>
+          <div class="card-actions">
+            <button id="howBtn" class="btn-ghost" type="button">Cara main</button>
+            <button id="soundBtn" class="btn-ghost" type="button" aria-pressed="true">Suara: ON</button>
+          </div>
+          <p id="tiltNote" class="tilt-note">Opsional. Di iPhone, izin gerak diminta saat diaktifkan.</p>
+        </div>
+      </div>
+
+      <footer class="menu-foot">
+        <span>GESER ATAU TOMBOL</span>
+        <span class="foot-sep" aria-hidden="true"></span>
+        <span>KEYBOARD: A / D · W / S · SHIFT</span>
+      </footer>
+    </section>
+
+    <section id="hud" class="hud" aria-label="Papan skor balapan">
+      <div class="hud-top">
+        <div class="pos-card">
+          <div class="pos-row">
+            <span class="hud-label">Posisi</span>
+            <span id="posValue" class="pos-value">1<span>/4</span></span>
+          </div>
+          <div class="energy-row">
+            <span class="hud-label">Energi</span>
+            <div class="energy-track"><i id="energyFill"></i></div>
+          </div>
+        </div>
+
+        <div class="race-center">
+          <div class="dist-value"><span id="distValue">0</span><small>m</small></div>
+          <div class="time-value" id="timeValue">0.00 s</div>
+        </div>
+
+        <button id="pauseBtn" class="icon-btn glass pause-btn" type="button" aria-label="Jeda balapan">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+        </button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-line">
+          <i id="progressFill"></i>
+          <span class="progress-dot rival" data-rival="0"></span>
+          <span class="progress-dot rival" data-rival="1"></span>
+          <span class="progress-dot rival" data-rival="2"></span>
+          <span class="progress-dot you" id="playerDot"></span>
+        </div>
+        <div class="progress-labels"><span>START</span><span>320 M</span></div>
+      </div>
+
+      <div id="tiltIndicator" class="tilt-indicator" aria-hidden="true">
+        <span class="tilt-bubble"></span>
+        <span>MIRING</span>
+      </div>
+
+      <div class="controls" id="controls">
+        <div class="controls-left">
+          <button id="laneLeft" class="ctrl ctrl-lane" type="button" aria-label="Pindah ke lajur kiri">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+            <small>KIRI</small>
+          </button>
+          <button id="laneRight" class="ctrl ctrl-lane" type="button" aria-label="Pindah ke lajur kanan">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg>
+            <small>KANAN</small>
+          </button>
+        </div>
+        <div class="controls-mid">
+          <button id="slideBtn" class="ctrl ctrl-slide" type="button" aria-label="Luncur ke bawah">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v13M6 13l6 7 6-7"/></svg>
+            <small>LUNCUR</small>
+          </button>
+          <button id="jumpBtn" class="ctrl ctrl-jump" type="button" aria-label="Lompat">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V8M6 11l6-7 6 7"/></svg>
+            <small>LOMPAT</small>
+          </button>
+        </div>
+        <button id="turboBtn" class="ctrl turbo" type="button" aria-label="Tahan untuk turbo">
+          <span class="turbo-ring"></span>
+          <span class="turbo-core">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 9-13h-6l1-7Z"/></svg>
+            <small>TURBO</small>
+          </span>
+        </button>
+      </div>
+
+      <div class="kbd-hint" aria-hidden="true">
+        <span><kbd>A</kbd><kbd>D</kbd> lajur</span>
+        <span><kbd>W</kbd> lompat</span>
+        <span><kbd>S</kbd> luncur</span>
+        <span><kbd>SHIFT</kbd> turbo</span>
+      </div>
+    </section>
+
+    <div id="countdown" class="countdown" aria-live="assertive"><span id="countdownText"></span></div>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+
+    <section id="pause" class="screen modal-screen is-hidden" aria-hidden="true" aria-label="Jeda">
+      <div class="modal-card pause-card">
+        <p class="eyebrow">JEDA</p>
+        <h2>Istirahat sejenak.</h2>
+        <p class="modal-copy">Napas dulu. Energi dan posisi tetap aman.</p>
+        <button id="resumeBtn" class="btn-primary" type="button">Lanjut lari</button>
+        <div class="modal-actions">
+          <button id="restartPauseBtn" class="btn-ghost" type="button">Ulang balapan</button>
+          <button id="quitBtn" class="btn-ghost" type="button">Ke menu</button>
+        </div>
+        <div class="modal-sound">
+          <button id="pauseSoundBtn" class="btn-link" type="button" aria-pressed="true">Suara: ON</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="screen results-screen is-hidden" aria-hidden="true" aria-label="Hasil balapan">
+      <div class="results-card">
+        <div id="medal" class="medal" aria-hidden="true"><span id="medalRank">1</span></div>
+        <p class="eyebrow" id="resultKicker">GARIS FINISH</p>
+        <h2 id="resultTitle">Juara 1!</h2>
+        <p id="resultSub" class="result-sub">Kamu memimpin dari awal sampai akhir.</p>
+
+        <div class="result-stats">
+          <div><span>Waktu</span><b><span id="resultTime">0.00</span><small>s</small></b></div>
+          <div><span>Rekor</span><b><span id="resultBest">0.00</span><small>s</small></b></div>
+        </div>
+        <p id="newRecord" class="new-record is-hidden">REKOR BARU!</p>
+
+        <div id="resultBoard" class="board" aria-label="Klasemen akhir"></div>
+
+        <button id="againBtn" class="btn-primary" type="button">Lari lagi</button>
+        <button id="menuBtn" class="btn-link" type="button">Kembali ke menu</button>
+      </div>
+    </section>
+
+    <section id="how" class="screen modal-screen is-hidden" aria-hidden="true" aria-label="Cara main">
+      <div class="modal-card how-card">
+        <button id="howClose" class="modal-close" type="button" aria-label="Tutup panduan">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+        <p class="eyebrow">PANDUAN CEPAT</p>
+        <h2>Cara main</h2>
+        <div class="how-grid">
+          <div class="how-item"><span class="how-icon">↔</span><div><b>Pindah lajur</b><small>Geser kiri/kanan, tombol lajur, atau miringkan HP.</small></div></div>
+          <div class="how-item"><span class="how-icon">↑</span><div><b>Lompati gawang</b><small>Geser ke atas, ketuk layar, atau tombol lompat.</small></div></div>
+          <div class="how-item"><span class="how-icon">↓</span><div><b>Luncur di bawah palang</b><small>Geser ke bawah atau tahan tombol luncur sesaat.</small></div></div>
+          <div class="how-item"><span class="how-icon">⚡</span><div><b>Bakar energi</b><small>Tahan TURBO untuk sprint. Ambil bola energi di lintasan.</small></div></div>
+        </div>
+        <p class="how-note">Ulangi sprint dengan cermat: menabrak rintangan membuatmu kehilangan kecepatan. Di iPhone, izin gerak diminta saat kemudi miring diaktifkan.</p>
+        <button id="howOk" class="btn-primary" type="button">Mengerti</button>
+      </div>
+    </section>
+  </div>
+
+  <noscript>
+    <div class="noscript">Aktifkan JavaScript untuk memainkan Lomba Lari.</div>
+  </noscript>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

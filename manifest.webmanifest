@@ -1,0 +1,21 @@
+{
+  "name": "Lomba Lari — Sprint 320 Meter",
+  "short_name": "Lomba Lari",
+  "description": "Balapan sprint 320 meter di stadion senja. Kontrol sentuh, kemudi miring opsional, dan turbo.",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#050a18",
+  "theme_color": "#071226",
+  "categories": ["games", "sports"],
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

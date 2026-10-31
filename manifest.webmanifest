@@ -1,0 +1,33 @@
+{
+  "name": "UPGRADE CLICKER — Neon Reactor",
+  "short_name": "Upgrade Clicker",
+  "description": "Idle clicker neon dengan 100 level, 10 evolusi, rebirth, dan 100 achievement. ©2026 Nur Mahmudi.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#04050d",
+  "theme_color": "#050713",
+  "lang": "id",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#050713">
+  <meta name="description" content="UPGRADE CLICKER — game idle clicker neon dengan 100 level, 10 evolusi, rebirth, dan 100 achievement. Dibuat oleh Nur Mahmudi.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Upgrade Clicker">
+  <title>UPGRADE CLICKER — Neon Reactor</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="boot" id="boot" aria-hidden="true">
+    <div class="boot-mark">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M35 4 13 36h17l-2 24 23-34H33l2-22Z" fill="currentColor"/></svg>
+    </div>
+    <div class="boot-title">UPGRADE CLICKER</div>
+    <div class="boot-sub">INITIALIZING NEON REACTOR</div>
+    <div class="boot-track"><span></span></div>
+  </div>
+
+  <div class="app" id="app" data-stage="0">
+    <canvas class="fx-canvas" id="fxCanvas" aria-hidden="true"></canvas>
+    <div class="ambient" aria-hidden="true">
+      <span class="ambient-orb ambient-orb-a"></span>
+      <span class="ambient-orb ambient-orb-b"></span>
+      <span class="ambient-grid"></span>
+      <span class="scanlines"></span>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="#" id="brandHome" aria-label="UPGRADE CLICKER — kembali ke reactor">
+        <span class="brand-sigil" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M26 3 9 28h13l-2 17 19-27H26l0-15Z" fill="currentColor"/></svg>
+        </span>
+        <span class="brand-copy">
+          <span class="brand-title">UPGRADE <em>CLICKER</em></span>
+          <span class="brand-sub">NEON REACTOR <i>//</i> EVOLUTION PROTOCOL</span>
+        </span>
+      </a>
+
+      <div class="top-actions">
+        <div class="currency-rail" aria-label="Mata uang">
+          <div class="currency currency-gold" title="Gold — untuk teknologi">
+            <span class="currency-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 3.2L17.8 8 12 11.2 6.2 8 12 5.2ZM5.5 10.1l5.5 3v5.4l-5.5-3v-5.4Zm7.5 8.4v-5.4l5.5-3v5.4l-5.5 3Z" fill="currentColor"/></svg>
+            </span>
+            <span class="currency-copy"><small>GOLD</small><b id="goldValue">0</b></span>
+          </div>
+          <div class="currency currency-diamond" title="Diamond — untuk upgrade spesial">
+            <span class="currency-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="m12 2 7 7-7 13L5 9l7-7Zm0 3.2L8 9l4 9 4-9-4-3.8Z" fill="currentColor"/></svg>
+            </span>
+            <span class="currency-copy"><small>DIAMOND</small><b id="diamondValue">0</b></span>
+          </div>
+          <div class="currency currency-crystal" title="Crystal — untuk evolusi">
+            <span class="currency-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2 4 8l8 14 8-14-8-6Zm0 3.3L17 8l-5 10-5-10 5-2.7Z" fill="currentColor"/></svg>
+            </span>
+            <span class="currency-copy"><small>CRYSTAL</small><b id="crystalValue">0</b></span>
+          </div>
+          <div class="currency currency-infinity" title="Infinity — untuk rebirth">
+            <span class="currency-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7.2 6C3.8 6 1 8.7 1 12s2.8 6 6.2 6c2.5 0 4.2-1.6 5.8-3.5C14.6 16.4 16.3 18 18.8 18 22.2 18 23 15.3 23 12s-.8-6-4.2-6c-2.5 0-4.2 1.6-5.8 3.5C11.4 7.6 9.7 6 7.2 6Zm0 2.5c1.3 0 2.5.9 4.1 2.6l.7.9-.7.9c-1.6 1.7-2.8 2.6-4.1 2.6C5.1 15.5 3.5 14 3.5 12S5.1 8.5 7.2 8.5Zm9.6 0c2.1 0 3.7 1.5 3.7 3.5s-1.6 3.5-3.7 3.5c-1.3 0-2.5-.9-4.1-2.6l-.7-.9.7-.9c1.6-1.7 2.8-2.6 4.1-2.6Z" fill="currentColor"/></svg>
+            </span>
+            <span class="currency-copy"><small>INFINITY</small><b id="infinityValue">0</b></span>
+          </div>
+        </div>
+        <button class="icon-btn" id="soundBtn" type="button" aria-label="Matikan suara" title="Suara">
+          <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5 3a4.5 4.5 0 0 0-2-3.7v7.4a4.5 4.5 0 0 0 2-3.7Zm-2-8.8v2.1a7.5 7.5 0 0 1 0 13.4v2.1a9.5 9.5 0 0 0 0-17.6Z" fill="currentColor"/></svg>
+          <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.6 3 2.2-2.2-1.4-1.4-2.2 2.2-2.2-2.2-1.4 1.4 2.2 2.2-2.2 2.2 1.4 1.4 2.2-2.2 2.2 2.2 1.4-1.4-2.2-2.2Z" fill="currentColor"/></svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" type="button" aria-label="Buka pengaturan" title="Pengaturan">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m19.4 13 .1-1-.1-1 2-1.6-1.9-3.2-2.5 1a7.8 7.8 0 0 0-1.7-1L15 3h-3.8l-.4 2.6a7.8 7.8 0 0 0-1.7 1l-2.5-1-1.9 3.2L6.7 11l-.1 1 .1 1-2 1.6 1.9 3.2 2.5-1a7.8 7.8 0 0 0 1.7 1l.4 2.6H15l.4-2.6a7.8 7.8 0 0 0 1.7-1l2.5 1 1.9-3.2-2.1-1.6ZM13.1 15.7a3.7 3.7 0 1 1 0-7.4 3.7 3.7 0 0 1 0 7.4Z" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="reactor-view" id="reactorView" aria-label="Reactor">
+        <div class="hero">
+          <div class="eyebrow"><span class="live-dot"></span> REACTOR ONLINE <span class="hero-id">UC–100</span></div>
+          <div class="total-label">TOTAL ENERGY</div>
+          <div class="energy-total" id="energyDisplay" title="0">
+            <span id="energyValue">0</span><span class="energy-unit" aria-hidden="true">⚡</span>
+          </div>
+          <div class="energy-rate"><span class="rate-arrow">↗</span> <b id="energyRate">+0</b> <span>ENERGY / SEC</span></div>
+        </div>
+
+        <div class="reactor-stage" id="reactorStage">
+          <div class="orbit orbit-a" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="orbit orbit-b" aria-hidden="true"><i></i><i></i></div>
+          <div class="orbit orbit-c" aria-hidden="true"><i></i></div>
+          <div class="stage-ring" aria-hidden="true"></div>
+
+          <div class="stage-hud stage-hud-left">
+            <span class="hud-label">CORE SYNC</span>
+            <span class="hud-value" id="tiltStatus">TOUCH MODE</span>
+          </div>
+          <div class="stage-hud stage-hud-right">
+            <span class="hud-label">COMBO</span>
+            <span class="hud-value combo-value" id="comboValue">×1.00</span>
+          </div>
+
+          <button class="reactor-core" id="coreButton" type="button" aria-label="Power Click — tekan untuk menghasilkan energy">
+            <span class="core-shadow" aria-hidden="true"></span>
+            <span class="core-ring core-ring-1" aria-hidden="true"></span>
+            <span class="core-ring core-ring-2" aria-hidden="true"></span>
+            <span class="core-ticks" aria-hidden="true"></span>
+            <span class="core-body" aria-hidden="true">
+              <span class="core-glass"></span>
+              <svg class="core-symbol" viewBox="0 0 100 100" aria-hidden="true">
+                <path class="core-symbol-glow" d="M56 10 24 56h22l-4 34 34-48H52l4-32Z" fill="currentColor"/>
+                <path d="M56 10 24 56h22l-4 34 34-48H52l4-32Z" fill="currentColor"/>
+              </svg>
+              <span class="core-noise"></span>
+            </span>
+            <span class="core-label"><small>POWER</small>CLICK</span>
+          </button>
+
+          <div class="tap-hint" id="tapHint"><span class="tap-finger">◉</span> TAP THE CORE</div>
+          <div class="float-layer" id="floatLayer" aria-hidden="true"></div>
+          <div class="drop-layer" id="dropLayer"></div>
+        </div>
+
+        <div class="combat-strip" aria-label="Statistik klik">
+          <div class="combat-stat">
+            <span>CLICK POWER</span>
+            <b id="clickPowerValue">1</b>
+          </div>
+          <div class="combat-stat">
+            <span>CRIT CHANCE</span>
+            <b id="critChanceValue">5%</b>
+          </div>
+          <div class="combat-stat">
+            <span>AUTO / SEC</span>
+            <b id="autoRateValue">0</b>
+          </div>
+        </div>
+
+        <div class="progress-card">
+          <div class="progress-top">
+            <div class="level-badge">
+              <span class="level-label">LEVEL</span>
+              <strong id="levelValue">1</strong>
+              <span class="level-max">/ 100</span>
+            </div>
+            <div class="stage-badge" id="stageBadge">BEGINNER</div>
+          </div>
+          <div class="progress-labels">
+            <span>LEVEL PROGRESS</span>
+            <b><span id="levelPercent">0</span> / 100</b>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="Level progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="levelProgress">
+            <div class="progress-fill" id="levelFill"></div>
+            <div class="progress-shine"></div>
+          </div>
+          <div class="progress-foot">
+            <span id="nextLevelHint">NEXT: +7 GOLD · +5 CRYSTAL</span>
+            <span class="evolution-hint" id="evolutionHint">EVOLVE AT LV. 10</span>
+          </div>
+        </div>
+
+        <div class="micro-stats">
+          <span><i>◈</i> <b id="totalClicks">0</b> TAPS</span>
+          <span><i>✦</i> <b id="bestCombo">0</b> BEST COMBO</span>
+          <span><i>⬡</i> <b id="achievementMini">0</b>/100 AWARDS</span>
+        </div>
+
+        <footer class="credit">
+          <span>©2026 NUR MAHMUDI</span>
+          <span class="credit-dot"></span>
+          <span>UPGRADE CLICKER v1.0</span>
+        </footer>
+      </section>
+
+      <section class="deck" id="deck" aria-label="Command deck">
+        <div class="deck-head">
+          <div>
+            <div class="eyebrow">COMMAND DECK <span class="deck-line"></span></div>
+            <h2 id="deckTitle">POWER LAB</h2>
+          </div>
+          <div class="buy-mode" id="buyMode" role="group" aria-label="Jumlah pembelian">
+            <button type="button" data-buy-mode="1" class="is-active">×1</button>
+            <button type="button" data-buy-mode="10">×10</button>
+            <button type="button" data-buy-mode="max">MAX</button>
+          </div>
+        </div>
+
+        <nav class="deck-tabs" aria-label="Menu command deck">
+          <button type="button" data-tab="lab" class="is-active" aria-selected="true"><span class="tab-icon">⌁</span><span>LAB</span></button>
+          <button type="button" data-tab="evolve" aria-selected="false"><span class="tab-icon">✧</span><span>EVOLVE</span></button>
+          <button type="button" data-tab="rebirth" aria-selected="false"><span class="tab-icon">∞</span><span>REBIRTH</span></button>
+          <button type="button" data-tab="awards" aria-selected="false"><span class="tab-icon">◈</span><span>AWARDS</span></button>
+        </nav>
+
+        <div class="deck-scroll" id="deckScroll">
+          <section class="panel is-active" id="panel-lab" data-panel="lab">
+            <div class="panel-intro">
+              <div>
+                <span class="section-kicker">PRODUCTION MATRIX</span>
+                <p>Perkuat inti, lalu biarkan reactor bekerja saat kamu pergi.</p>
+              </div>
+              <div class="intro-stats">
+                <span><small>CLICK</small><b id="labClickPower">1</b></span>
+                <span><small>AUTO</small><b id="labAutoRate">0/s</b></span>
+              </div>
+            </div>
+
+            <div class="section-head">
+              <h3><span class="section-num">01</span> ENERGY UPGRADES</h3>
+              <span class="section-tag">ENERGY</span>
+            </div>
+            <div class="upgrade-list" id="upgradeList"></div>
+
+            <div class="section-head">
+              <h3><span class="section-num">02</span> GOLD TECHNOLOGIES</h3>
+              <span class="section-tag tag-gold">GOLD</span>
+            </div>
+            <div class="upgrade-list" id="techList"></div>
+
+            <div class="section-head">
+              <h3><span class="section-num">03</span> DIAMOND PROTOTYPES</h3>
+              <span class="section-tag tag-diamond">DIAMOND</span>
+            </div>
+            <div class="upgrade-list" id="specialList"></div>
+            <div class="panel-note"><span>ⓘ</span> Gold dan Diamond juga didapat dari level up, supply drop, dan achievement.</div>
+          </section>
+
+          <section class="panel" id="panel-evolve" data-panel="evolve">
+            <div class="form-card" id="formCard">
+              <div class="form-orb" id="formOrb" aria-hidden="true">
+                <span></span>
+                <svg viewBox="0 0 100 100"><path d="M56 10 24 56h22l-4 34 34-48H52l4-32Z" fill="currentColor"/></svg>
+              </div>
+              <div class="form-copy">
+                <span class="section-kicker">CURRENT FORM</span>
+                <h3 id="formName">BEGINNER CORE</h3>
+                <p><span id="formStage">STAGE 1</span> <i>·</i> <span id="formBand">LV. 1–10</span></p>
+              </div>
+              <div class="form-mult">
+                <small>CORE MULT</small>
+                <b id="formMult">×1</b>
+              </div>
+            </div>
+
+            <div class="evolve-callout">
+              <div class="evolve-copy">
+                <span class="section-kicker">NEXT EVOLUTION</span>
+                <h3 id="evolveNextName">ADVANCED CORE</h3>
+                <p id="evolveNextDesc">Buka form baru dan lipatgandakan seluruh output inti.</p>
+                <div class="req-row">
+                  <span id="evolveLevelReq" class="req-chip">LV. 10</span>
+                  <span id="evolveCrystalReq" class="req-chip req-crystal">◆ 8 CRYSTAL</span>
+                </div>
+              </div>
+              <button class="primary-btn evolve-btn" id="evolveButton" type="button">
+                <span class="btn-glint"></span>
+                <span class="btn-main">EVOLVE</span>
+                <small id="evolveButtonSub">LOCKED</small>
+              </button>
+            </div>
+
+            <div class="section-head">
+              <h3><span class="section-num">04</span> EVOLUTION ARCHIVE</h3>
+              <span class="section-tag tag-crystal">10 FORMS</span>
+            </div>
+            <div class="stage-track" id="stageTrack"></div>
+
+            <div class="lore-card">
+              <span class="lore-mark">✧</span>
+              <p>Setiap evolusi mengubah warna, bentuk, dan kekuatan inti. Form <b>Ultimate</b> hanya dapat dibuka pada Level 90.</p>
+            </div>
+          </section>
+
+          <section class="panel" id="panel-rebirth" data-panel="rebirth">
+            <div class="rebirth-hero">
+              <div class="infinity-symbol" aria-hidden="true">∞</div>
+              <div class="rebirth-copy">
+                <span class="section-kicker">SINGULARITY PROTOCOL</span>
+                <h3>REBIRTH</h3>
+                <p>Kembali ke Level 1 dan tukar seluruh progres sesi ini menjadi <b>Infinity</b> yang permanen.</p>
+              </div>
+              <div class="rebirth-metrics">
+                <div><small>REBIRTHS</small><b id="rebirthCount">0</b></div>
+                <div><small>GLOBAL BONUS</small><b id="rebirthBonus">+0%</b></div>
+              </div>
+            </div>
+
+            <div class="rebirth-reward">
+              <div class="reward-copy">
+                <span>REWARD ON REBIRTH</span>
+                <strong><span id="rebirthReward">0</span> <i>∞</i></strong>
+                <small id="rebirthRequirement">Reach Level 20 to unlock.</small>
+              </div>
+              <button class="primary-btn rebirth-btn" id="rebirthButton" type="button" disabled>
+                <span class="btn-main">REBIRTH</span>
+                <small id="rebirthButtonSub">LOCKED</small>
+              </button>
+            </div>
+
+            <div class="section-head">
+              <h3><span class="section-num">05</span> PERMANENT UPGRADES</h3>
+              <span class="section-tag tag-infinity">INFINITY</span>
+            </div>
+            <div class="upgrade-list" id="permList"></div>
+
+            <div class="reset-grid">
+              <div>
+                <span class="reset-title reset-lost">RESET</span>
+                <ul><li>Energy & level</li><li>Upgrades & tech</li><li>Evolution & crystal</li><li>Gold & diamond</li></ul>
+              </div>
+              <div>
+                <span class="reset-title reset-kept">PERMANENT</span>
+                <ul><li>Achievements</li><li>Infinity & rebirths</li><li>Permanent upgrades</li><li>Lifetime stats</li></ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" id="panel-awards" data-panel="awards">
+            <div class="awards-summary">
+              <div class="award-ring" id="awardRing" style="--pct:0">
+                <div><b id="achievementCount">0</b><small>/ 100</small></div>
+              </div>
+              <div class="awards-copy">
+                <span class="section-kicker">ACHIEVEMENT DATABASE</span>
+                <h3>100 CORES OF PROOF</h3>
+                <p>Setiap achievement memberi Diamond. Kumpulkan semuanya untuk hadiah Infinity.</p>
+                <div class="awards-bar"><span id="achievementBar"></span></div>
+              </div>
+            </div>
+            <div class="award-filters" role="group" aria-label="Filter achievement">
+              <button type="button" data-award-filter="all" class="is-active">ALL</button>
+              <button type="button" data-award-filter="unlocked">UNLOCKED</button>
+              <button type="button" data-award-filter="locked">LOCKED</button>
+            </div>
+            <div class="achievement-list" id="achievementList"></div>
+          </section>
+        </div>
+
+        <div class="deck-footer">
+          <span id="saveStatus">SAVE READY</span>
+          <span>©2026 NUR MAHMUDI</span>
+        </div>
+      </section>
+    </main>
+
+    <nav class="mobile-nav" aria-label="Navigasi utama">
+      <button type="button" data-mobile-tab="core" class="is-active"><span>◉</span><small>CORE</small></button>
+      <button type="button" data-mobile-tab="lab"><span>⌁</span><small>LAB</small></button>
+      <button type="button" data-mobile-tab="evolve"><span>✧</span><small>EVOLVE</small></button>
+      <button type="button" data-mobile-tab="rebirth"><span>∞</span><small>REBIRTH</small></button>
+      <button type="button" data-mobile-tab="awards"><span>◈</span><small>AWARDS</small></button>
+    </nav>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+
+  <dialog class="modal" id="settingsDialog" aria-labelledby="settingsTitle">
+    <div class="modal-head">
+      <div><span class="section-kicker">SYSTEM</span><h2 id="settingsTitle">SETTINGS</h2></div>
+      <button class="icon-btn modal-close" type="button" data-close="settingsDialog" aria-label="Tutup pengaturan">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-group">
+        <div class="setting-row">
+          <div><b>Sound FX</b><small>Efek klik dan notifikasi sintetis.</small></div>
+          <button class="toggle" type="button" id="settingsSound" role="switch" aria-checked="true"><span></span></button>
+        </div>
+        <div class="setting-row">
+          <div><b>Haptic Feedback</b><small>Getaran singkat pada perangkat yang mendukung.</small></div>
+          <button class="toggle" type="button" id="settingsHaptics" role="switch" aria-checked="true"><span></span></button>
+        </div>
+        <div class="setting-row">
+          <div><b>Tilt Reactor</b><small>Miringkan perangkat untuk bonus click hingga +20%. Diperlukan izin motion di iOS.</small></div>
+          <button class="toggle" type="button" id="settingsTilt" role="switch" aria-checked="false"><span></span></button>
+        </div>
+        <div class="motion-status" id="motionStatus">
+          <span class="motion-dot"></span>
+          <span id="motionStatusText">Motion sensor belum aktif.</span>
+          <button class="text-btn" type="button" id="motionPermissionBtn">ENABLE</button>
+        </div>
+      </div>
+
+      <div class="settings-group how-to">
+        <span class="section-kicker">HOW TO PLAY</span>
+        <ol>
+          <li><b>Tap core</b> untuk energy. Combo meningkatkan output.</li>
+          <li><b>Beli upgrade</b> di Lab, lalu tunggu auto reactor.</li>
+          <li><b>Evolve</b> setiap 10 level dengan Crystal.</li>
+          <li><b>Rebirth</b> di Level 20 untuk Infinity permanen.</li>
+        </ol>
+      </div>
+
+      <div class="settings-group">
+        <div class="setting-row">
+          <div><b>Reset Save</b><small>Hapus semua progres, termasuk achievement dan Infinity.</small></div>
+          <button class="danger-btn" type="button" id="resetBtn">RESET</button>
+        </div>
+      </div>
+
+      <div class="modal-credit">
+        <span>UPGRADE CLICKER</span>
+        <span>©2026 NUR MAHMUDI</span>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="modal modal-small" id="rebirthDialog" aria-labelledby="rebirthDialogTitle">
+    <div class="modal-head">
+      <div><span class="section-kicker">CONFIRM PROTOCOL</span><h2 id="rebirthDialogTitle">REBIRTH?</h2></div>
+      <button class="icon-btn modal-close" type="button" data-close="rebirthDialog" aria-label="Batal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-infinity">∞</div>
+      <p class="confirm-copy">Seluruh energy, level, upgrade, evolusi, Gold, Diamond, dan Crystal akan di-reset. Achievement dan Infinity tetap tersimpan.</p>
+      <div class="confirm-reward">KAMU AKAN MENDAPAT <b id="confirmReward">0 ∞</b></div>
+      <div class="modal-actions">
+        <button class="ghost-btn" type="button" data-close="rebirthDialog">CANCEL</button>
+        <button class="primary-btn rebirth-btn" type="button" id="confirmRebirthBtn"><span class="btn-main">REBIRTH</span></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="modal modal-small" id="offlineDialog" aria-labelledby="offlineTitle">
+    <div class="modal-head">
+      <div><span class="section-kicker">IDLE REPORT</span><h2 id="offlineTitle">REACTOR WAS IDLE</h2></div>
+      <button class="icon-btn modal-close" type="button" data-close="offlineDialog" aria-label="Tutup">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="offline-orb">⚡</div>
+      <p class="confirm-copy">Reactor tetap bekerja selama <b id="offlineTime">0m</b>. Efisiensi offline: <b id="offlineEfficiency">50%</b>.</p>
+      <div class="offline-reward"><span>ENERGY COLLECTED</span><b id="offlineEnergy">+0</b></div>
+      <div class="modal-actions">
+        <button class="primary-btn" type="button" data-close="offlineDialog"><span class="btn-main">COLLECT</span></button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#070d1c">
+  <meta name="description" content="Lomba Lari — game sprint 200 meter. Ketuk kiri-kanan bergantian, lompati gawang, dan rebut garis finis. Kontrol sentuh dengan mode miring opsional.">
+  <title>Lomba Lari — Sprint 200M</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-hidden="true"></canvas>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <section id="startScreen" class="screen start" aria-labelledby="gameTitle">
+      <header class="topbar">
+        <div class="league">
+          <span class="league-mark" aria-hidden="true"><i>L</i><i>L</i></span>
+          <span class="league-copy">KEJUARAAN ATLETIK<br><b>SPRINT 200 M</b></span>
+        </div>
+        <button id="soundBtn" class="icon-btn" type="button" aria-label="Matikan suara" aria-pressed="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.4L12 5.6v12.8l-4.6-3.9H4z"/><path class="wave" d="M15.3 9.2a4 4 0 0 1 0 5.6"/><path class="wave" d="M17.8 6.7a7.5 7.5 0 0 1 0 10.6"/></svg>
+        </button>
+      </header>
+
+      <div class="hero">
+        <div class="eyebrow"><span class="eyebrow-line"></span>STADION SENAYAN <span class="dot-sep">·</span> 4 PELARI</div>
+        <h1 id="gameTitle" class="title">
+          <span class="title-lomba">LOMBA</span>
+          <span class="title-lari">LARI</span>
+        </h1>
+        <p class="tagline">Ketuk kiri–kanan bergantian. Lompati gawang. Rebut garis finis.</p>
+
+        <div class="actions">
+          <button id="startBtn" class="btn primary" type="button" aria-label="Start">
+            <span class="btn-label">MULAI LARI</span>
+            <span class="btn-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 12h14M13 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+          <button id="howBtn" class="btn ghost" type="button">CARA MAIN</button>
+        </div>
+      </div>
+
+      <div class="dock">
+        <div class="dock-row">
+          <button id="tiltToggle" class="tilt-card" type="button" role="switch" aria-checked="false">
+            <span class="tilt-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.4"/><path d="M10.5 18h3"/><path class="tilt-arrow" d="M3.5 12h4M17 12h3.5"/></svg>
+            </span>
+            <span class="tilt-copy"><b>Mode miring</b><small id="tiltHint">Opsional · sensor gerak</small></span>
+            <span class="switch" aria-hidden="true"><span></span></span>
+          </button>
+          <div class="record-card">
+            <span class="record-label">REKOR PRIBADI</span>
+            <b id="bestTime">--.--</b>
+          </div>
+        </div>
+        <p id="tiltStatus" class="status" role="status" aria-live="polite">
+          <span id="tiltStatusText">Aktifkan mode miring untuk lean otomatis.</span>
+          <button id="tiltCalibrate" class="link-btn" type="button" hidden>Kalibrasi ulang</button>
+        </p>
+        <div class="dock-foot">
+          <span class="touch-hint"><kbd>A</kbd><kbd>D</kbd><span>atau ketuk</span><b>kiri</b><span>/</span><b>kanan</b></span>
+          <span class="version">v1.0 <span class="dot-sep">·</span> 200M</span>
+        </div>
+      </div>
+    </section>
+
+    <header id="hud" class="hud" hidden>
+      <div class="hud-top">
+        <div class="hud-group">
+          <div class="hud-stat pos-stat">
+            <span class="hud-label">POSISI</span>
+            <span class="hud-value"><b id="posNum">4</b><i>/4</i></span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">WAKTU</span>
+            <span class="hud-value time-value" id="timeNum">00.00</span>
+          </div>
+        </div>
+        <div class="hud-group hud-group-right">
+          <div class="hud-stat speed-stat">
+            <span class="hud-label">KECEPATAN</span>
+            <span class="hud-value"><b id="speedNum">0.0</b><i>m/s</i></span>
+          </div>
+          <button id="pauseBtn" class="icon-btn small" type="button" aria-label="Jeda permainan">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="5" width="3.4" height="14" rx="1"/><rect x="13.6" y="5" width="3.4" height="14" rx="1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-head"><span>200 M SPRINT</span><span id="distNum">0 M</span></div>
+        <div class="progress" id="progress">
+          <div class="progress-fill" id="progressFill"></div>
+          <div class="progress-dots" id="progressDots"></div>
+        </div>
+      </div>
+    </header>
+
+    <div id="meters" class="meters" hidden>
+      <div id="combo" class="meter combo">
+        <span class="meter-label">RITME</span>
+        <b id="comboNum">×1</b>
+        <span class="meter-bar"><i id="comboBar"></i></span>
+      </div>
+      <div id="leanMeter" class="meter lean" hidden>
+        <span class="meter-label">LEAN</span>
+        <b id="leanPct">0%</b>
+        <span class="meter-bar"><i id="leanFill"></i></span>
+      </div>
+    </div>
+
+    <div id="controls" class="controls" hidden>
+      <button class="foot-pad" type="button" data-foot="left" aria-label="Langkah kiri">
+        <span class="pad-ring" aria-hidden="true"></span>
+        <svg class="shoe" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M9 30c0-3 2-5 5-5l4-9c1-3 5-3 6 0l2 6c2 1 5 1 7 3l5 3c3 2 2 6-2 6H13c-2 0-4-1-4-4z"/>
+          <path class="shoe-line" d="M19 17l4 2M17 21l4 2M15 25l4 2"/>
+        </svg>
+        <span class="pad-label">KIRI</span>
+        <span class="pad-key" aria-hidden="true">A</span>
+      </button>
+
+      <button id="jumpBtn" class="jump-btn" type="button" aria-label="Lompat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6"/></svg>
+        <span>LOMPAT</span>
+      </button>
+
+      <button class="foot-pad" type="button" data-foot="right" aria-label="Langkah kanan">
+        <span class="pad-ring" aria-hidden="true"></span>
+        <svg class="shoe flip" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M9 30c0-3 2-5 5-5l4-9c1-3 5-3 6 0l2 6c2 1 5 1 7 3l5 3c3 2 2 6-2 6H13c-2 0-4-1-4-4z"/>
+          <path class="shoe-line" d="M19 17l4 2M17 21l4 2M15 25l4 2"/>
+        </svg>
+        <span class="pad-label">KANAN</span>
+        <span class="pad-key" aria-hidden="true">D</span>
+      </button>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <section id="resultScreen" class="screen result" hidden aria-labelledby="resultTitle">
+      <div class="result-card">
+        <div class="result-kicker" id="resultKicker">GARIS FINIS</div>
+        <div class="medal" id="medal" aria-hidden="true">
+          <span class="medal-ribbon"></span>
+          <span class="medal-disc"><b id="placeNum">1</b><small>PLACE</small></span>
+        </div>
+        <h2 id="resultTitle">JUARA 1</h2>
+        <p id="resultSub" class="result-sub">Lari yang luar biasa.</p>
+        <div class="result-time">
+          <span>WAKTU</span>
+          <b id="finalTime">00.00</b>
+          <i>DETIK</i>
+        </div>
+        <div class="result-best">Rekor pribadi <b id="finalBest">--.--</b><span id="newBest" hidden>BARU!</span></div>
+        <ol id="standings" class="standings" aria-label="Klasemen akhir"></ol>
+        <div class="result-actions">
+          <button id="againBtn" class="btn primary" type="button">
+            <span class="btn-label">LARI LAGI</span>
+            <span class="btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg></span>
+          </button>
+          <button id="menuBtn" class="btn ghost" type="button">MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="pauseScreen" class="screen modal" hidden aria-labelledby="pauseTitle">
+      <div class="modal-card">
+        <span class="modal-kicker">JEDA</span>
+        <h2 id="pauseTitle">ISTIRAHAT SEBENTAR</h2>
+        <p>Napas dulu. Rekor masih menunggu.</p>
+        <div class="modal-actions">
+          <button id="resumeBtn" class="btn primary" type="button">LANJUT <span aria-hidden="true">→</span></button>
+          <button id="restartBtn" class="btn ghost" type="button">ULANG LARI</button>
+          <button id="quitBtn" class="btn text" type="button">KELUAR KE MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="howScreen" class="screen modal" hidden aria-labelledby="howTitle">
+      <div class="modal-card how-card">
+        <button id="closeHow" class="icon-btn close-btn" type="button" aria-label="Tutup cara main">×</button>
+        <span class="modal-kicker">CARA MAIN</span>
+        <h2 id="howTitle">TIGA LANGKAH KE FINISH</h2>
+        <div class="how-grid">
+          <div class="how-step">
+            <span class="how-num">01</span>
+            <h3>Ketuk bergantian</h3>
+            <p>Ketuk <b>KIRI</b> dan <b>KANAN</b> bergantian mengikuti irama lari. Ritme yang rapat membuat sprint makin kencang.</p>
+          </div>
+          <div class="how-step">
+            <span class="how-num">02</span>
+            <h3>Lompati gawang</h3>
+            <p>Tekan <b>LOMPAT</b> atau geser ke atas sebelum gawang. Menabrak gawang membuatmu kehilangan kecepatan.</p>
+          </div>
+          <div class="how-step">
+            <span class="how-num">03</span>
+            <h3>Pakai lean</h3>
+            <p>Nyalakan <b>mode miring</b>, izinkan sensor gerak, lalu condongkan ponsel untuk dorongan ekstra.</p>
+          </div>
+        </div>
+        <div class="how-tip"><span aria-hidden="true">★</span> 200 meter. Empat pelari. Satu garis finis.</div>
+        <button id="howStart" class="btn primary" type="button">SIAP, MULAI <span aria-hidden="true">→</span></button>
+      </div>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
